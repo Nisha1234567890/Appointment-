@@ -1,0 +1,48 @@
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+
+sealed class AuthScreen {
+    object Login : AuthScreen()
+    object Signup : AuthScreen()
+    object Home : AuthScreen()
+}
+
+class AuthViewModel : ViewModel() {
+    // Current screen state
+    val currentScreen = mutableStateOf<AuthScreen>(AuthScreen.Login)
+
+    // User input states
+    val email = mutableStateOf("")
+    val password = mutableStateOf("")
+    val confirmPassword = mutableStateOf("")
+
+    // Simple auth logic (mock)
+    fun login() {
+        if (email.value.isNotBlank() && password.value.isNotBlank()) {
+            // For demo, login always succeeds
+            currentScreen.value = AuthScreen.Home
+        }
+    }
+
+    fun signup() {
+        if (email.value.isNotBlank() && password.value.isNotBlank() && password.value == confirmPassword.value) {
+            // For demo, signup always succeeds
+            currentScreen.value = AuthScreen.Home
+        }
+    }
+
+    fun logout() {
+        email.value = ""
+        password.value = ""
+        confirmPassword.value = ""
+        currentScreen.value = AuthScreen.Login
+    }
+
+    fun goToSignup() {
+        currentScreen.value = AuthScreen.Signup
+    }
+
+    fun goToLogin() {
+        currentScreen.value = AuthScreen.Login
+    }
+}
