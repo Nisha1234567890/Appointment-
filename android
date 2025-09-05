@@ -1,0 +1,173 @@
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                val authViewModel: AuthViewModel = viewModel()
+                val currentScreen by authViewModel.currentScreen
+
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    when (currentScreen) {
+                        is AuthScreen.Login -> LoginScreen(authViewModel)
+                        is AuthScreen.Signup -> SignupScreen(authViewModel)
+                        is AuthScreen.Home -> HomeScreen(authViewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LoginScreen(authViewModel: AuthViewModel) {
+    val email by authViewModel.email
+    val password by authViewModel.password
+
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Login") })
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = email,
+                onValueChange = { authViewModel.email.value = it },
+                label = { Text("Email") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = password,
+                onValueChange = { authViewModel.password.value = it },
+                label = { Text("Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { authViewModel.login() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Login")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(onClick = { authViewModel.goToSignup() }) {
+                Text("Don't have an account? Sign up")
+            }
+        }
+    }
+}
+
+@Composable
+fun SignupScreen(authViewModel: AuthViewModel) {
+    val email by authViewModel.email
+    val password by authViewModel.password
+    val confirmPassword by authViewModel.confirmPassword
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Sign Up") },
+                navigationIcon = {
+                    IconButton(onClick = { authViewModel.goToLogin() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(
+                value = email,
+                onValueChange = { authViewModel.email.value = it },
+                label = { Text("Email") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = password,
+                onValueChange = { authViewModel.password.value = it },
+                label = { Text("Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TextField(
+                value = confirmPassword,
+                onValueChange = { authViewModel.confirmPassword.value = it },
+                label = { Text("Confirm Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { authViewModel.signup() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Sign Up")
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(authViewModel: AuthViewModel) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Home") },
+                actions = {
+                    TextButton(onClick = { authViewModel.logout() }) {
+                        Text("Logout", color = MaterialTheme.colors.onPrimary)
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Welcome, ${authViewModel.email.value}!", style = MaterialTheme.typography.h5)
+        }
+    }
+}
